@@ -1,0 +1,26 @@
+#
+# This program is protected under international and U.S. copyright laws as
+# an unpublished work. This program is confidential and proprietary to the
+# copyright owners. Reproduction or disclosure, in whole or in part, or the
+# production of derivative works therefrom without the express permission of
+# the copyright owners is prohibited.
+#
+#                 Copyright (C) 2017 by Dolby Laboratories.
+#                            All rights reserved.
+#
+
+# NOTE: ARG_EXEC will be replaced by makefile with executable name.
+#       We have to use externall tool since we can not replace arg
+#       in ENTRYPOINT definition.
+
+FROM golang:1.8.3-alpine3.6 AS builder
+ARG VERSION=unknown
+
+COPY ./*.* /go/src/${PKG}/
+COPY ./vendor /go/src/${PKG}/src
+WORKDIR /go/src/${PKG}
+RUN env CGO_ENABLE=0 GOPATH=/go/src/${PKG} go build -o bin/ssm-env
+
+# Create image
+FROM alpine:3.6
+COPY bin/ssm-env /usr/local/bin/ssm-env
